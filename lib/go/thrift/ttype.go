@@ -375,8 +375,15 @@ func (p *tType) Less(i, j interface{}) bool {
 
 
 func (p *tType) Compare(i, j interface{}) (int, bool) {
+<<<<<<< HEAD
   if reflect.DeepEqual(i, j) {
     return 0, true
+=======
+  if !p.IsBinary() {
+    if i == j {
+      return 0, true
+    }
+>>>>>>> upstream/master
   }
   if i == nil {
     if j == nil {
@@ -399,8 +406,15 @@ func (p *tType) Compare(i, j interface{}) (int, bool) {
   if !iok && !jok {
     return 0, false
   }
+<<<<<<< HEAD
   if reflect.DeepEqual(ci, cj) {
     return 0, true
+=======
+  if !p.IsBinary() {
+    if ci == cj {
+      return 0, true
+    }
+>>>>>>> upstream/master
   }
   if ci == nil {
     if cj == nil {
@@ -541,17 +555,21 @@ func (p *tType) Compare(i, j interface{}) (int, bool) {
     if !iok || !jok {
       return 0, false
     }
-    ei := mi.KeyType()
-    if ej := mj.KeyType(); ei != ej {
-      return CompareInt(int(ei.ThriftTypeId()), int(ej.ThriftTypeId())), true
+    ki := mi.KeyType()
+    if kj := mj.KeyType(); ki != kj {
+      return CompareInt(int(ki.ThriftTypeId()), int(kj.ThriftTypeId())), true
+    }
+    vi := mi.ValueType()
+    if vj := mj.ValueType(); vi != vj {
+      return CompareInt(int(vi.ThriftTypeId()), int(vj.ThriftTypeId())), true
     }
     if size := mi.Len(); size != mj.Len() {
       return CompareInt(size, mj.Len()), true
     }
-    if c, cok := ei.Compare(mi.Keys(), mj.Keys()); c != 0 || !cok {
+    if c, cok := ki.CompareValueArrays(mi.Keys(), mj.Keys()); c != 0 || !cok {
       return c, cok
     }
-    return ei.Compare(mi.Values(), mj.Values())
+    return vi.CompareValueArrays(mi.Values(), mj.Values())
   case iLIST:
     li, iok := ci.(TList)
     lj, jok := cj.(TList)
@@ -591,7 +609,7 @@ func (p *tType) Compare(i, j interface{}) (int, bool) {
     if size != lj.Len() {
       return CompareInt(size, lj.Len()), true
     }
-    return ei.Compare(li.Values(), lj.Values())
+    return ei.CompareValueArrays(li.Values(), lj.Values())
   default:
     panic("Invalid thrift type to coerce")
   }
